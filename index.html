@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>UPSC Current Affairs</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 900px; margin: 20px auto; padding: 0 12px; }
+    h1 { margin-bottom: 8px; }
+    .note { border: 1px solid #ccc; padding: 12px; margin: 12px 0; white-space: pre-wrap; }
+    #status { color: #666; }
+    input, button { padding: 6px 10px; }
+  </style>
+</head>
+<body>
+  <h1>UPSC Current Affairs (AI)</h1>
+  <div>
+    <label>Items: <input id="n" type="number" value="5" min="1" max="10"></label>
+    <label>Model: <input id="model" type="text" value="llama3.2"></label>
+    <button onclick="loadNotes()">Load</button>
+  </div>
+  <p id="status">Idle</p>
+  <div id="notes"></div>
+<script>
+async function loadNotes() {
+  const n = document.getElementById('n').value || 5;
+  const model = document.getElementById('model').value || 'llama3.2';
+  const status = document.getElementById('status');
+  const container = document.getElementById('notes');
+  status.textContent = 'Loading...';
+  container.innerHTML = '';
+  try {
+    // If frontend is served from same origin as API, use relative path:
+    const res = await fetch(`/daily?n=${encodeURIComponent(n)}&model=${encodeURIComponent(model)}`);
+    if (!res.ok) throw new Error('API error ' + res.status);
+    const data = await res.json();
+    status.textContent = `Received ${data.count} notes`;
+    data.notes.forEach((note) => {
+      const div = document.createElement('div');
+      div.className = 'note';
+      div.textContent = note;
+      container.appendChild(div);
+    });
+  } catch (e) {
+    status.textContent = 'Error: ' + e.message;
+  }
+}
+</script>
+</body>
+</html>
